@@ -1,278 +1,238 @@
-*<!DOCTYPE html>
-<html lang="id">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kalkulator Matematika dengan Musik (Indonesia)</title>
-<style>
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: url('https://st2.depositphotos.com/1701651/7044/v/950/depositphotos_70447433-stock-illustration-i-love-math.jpg') repeat-x;
-    background-size: cover;
-    animation: moveBG 40s linear infinite;
-  }
-
-  @keyframes moveBG {
-    0% { background-position: 0 0; }
-    100% { background-position: -2000px 0; }
-  }
-
-  .calculator {
-    width: 350px;
-    border-radius: 5px;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.85);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    position: relative;
-    z-index: 20;
-  }
-
-  .display {
-    width: 95%;
-    height: 40px;
-    margin-bottom: 6px;
-    text-align: right;
-    padding: 5px;
-    font-size: 20px;
-    border-radius: 6px;
-    border: 2px solid #1E3A8A;
-    background: rgba(255,255,255,0.9);
-    box-shadow: 0 0 5px rgba(30, 58, 138, 0.7);
-  }
-
-  .convert {
-    width: 95%;
-    text-align: right;
-    font-size: 15px;
-    font-weight: bold;
-    color: #0b3256;
-    margin-bottom: 10px;
-    text-shadow: 0 1px 2px rgba(255,255,255,0.6);
-  }
-
-  .history-container {
-    display: none;
-    background: rgba(39, 34, 34, 0.9);
-    border: 1px solid #ccc;
-    padding: 6px;
-    margin-bottom: 10px;
-    max-height: 110px;
-    overflow-y: auto;
-    font-size: 14px;
-    border-radius: 6px;
-  }
-
-  .buttons {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
-  }
-
-  .button {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 10px 8px;
-    font-size: 16px;
-    cursor: pointer;
-    background-color: rgba(255,255,255,0.35);
-    border: 1px solid rgba(2, 2, 2, 0.5);
-    border-radius: 6px;
-    transition: background 0.2s, transform 0.1s;
-    color: #000;
-    font-weight: bold;
-    user-select: none;
-  }
-
-  .button span {
-    font-size: 12px;
-    color: #333;
-    font-weight: normal;
-  }
-
-  .button:hover {
-    background-color: rgba(255,255,255,0.65);
-    transform: translateY(-1px);
-  }
-
-  .history-btn { grid-column: span 4; background: #e2d627; color: white; font-weight: bold; }
-  .history-btn:hover { background: #e67e22; }
-  .convert-btn { background: #3498db; color: white; font-weight: bold; }
-  .convert-btn:hover { background: #2980b9; }
-  .equal-btn { background-color: #2ecc71; color: white; grid-column: span 4; }
-  .clear-btn { background-color: #e74c3c; color: white; grid-column: span 4; }
-
-  .music-btn {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    background-color: #02090a;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    z-index: 30;
-  }
-</style>
+  <meta charset="UTF-8">
+  <title>Game Ular</title>
+  <style>
+    body {
+      background: #6b420d;
+      color: white;
+      text-align: center;
+      font-family: sans-serif;
+    }
+    canvas {
+      background: green;
+      display: block;
+      margin: 10px auto;
+      border: 2px solid white;
+    }
+    #scoreboard {
+      font-size: 20px;
+    }
+    .controls {
+      margin-top: 10px;
+    }
+    .btn {
+      width: 60px;
+      height: 60px;
+      font-size: 24px;
+      margin: 5px;
+      background: #333;
+      color: white;
+      border: 2px solid white;
+      border-radius: 10px;
+    }
+    .arrow-grid {
+      display: grid;
+      grid-template-columns: 60px 60px 60px;
+      justify-content: center;
+      align-items: center;
+    }
+    .settings {
+      margin: 10px 0;
+      font-size: 16px;
+    }
+    select, input[type="color"] {
+      padding: 4px;
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
-
-<!-- Tombol musik -->
-<button class="music-btn" onclick="toggleMusic()">🎵 Musik</button>
-
-<!-- Audio background -->
-<audio id="backgroundMusic" loop>
-  <source src="gentong.mp3" type="audio/mpeg">
-</audio>
-
-<!-- Audio angka bahasa Indonesia -->
-<audio id="voice0" src="audio/0.mp3"></audio>
-<audio id="voice1" src="audio/1.mp3"></audio>
-<audio id="voice2" src="audio/2.mp3"></audio>
-<audio id="voice3" src="audio/3.mp3"></audio>
-<audio id="voice4" src="audio/4.mp3"></audio>
-<audio id="voice5" src="audio/5.mp3"></audio>
-<audio id="voice6" src="audio/6.mp3"></audio>
-<audio id="voice7" src="audio/7.mp3"></audio>
-<audio id="voice8" src="audio/8.mp3"></audio>
-<audio id="voice9" src="audio/9.mp3"></audio>
-
-<!-- Audio operator bahasa Indonesia -->
-<audio id="voiceplus" src="audio/tambah.mp3"></audio>
-<audio id="voiceminus" src="audio/kurang.mp3"></audio>
-<audio id="voicemultiply" src="audio/kali.mp3"></audio>
-<audio id="voicedivide" src="audio/bagi.mp3"></audio>
-<audio id="voiceequal" src="audio/hasil.mp3"></audio>
-<audio id="voiceclear" src="audio/bersih.mp3"></audio>
-<audio id="voicedot" src="audio/titik.mp3"></audio>
-<audio id="voicedollar" src="audio/dolar.mp3"></audio>
-<audio id="voiceidr" src="audio/rupiah.mp3"></audio>
-<audio id="voiceusd" src="audio/dolar.mp3"></audio>
-<audio id="voicehistory" src="audio/riwayat.mp3"></audio>
-
-<div class="calculator">
-  <div class="button history-btn" onclick="playSound('history'); toggleHistory()">📜 History</div>
-  <div class="history-container" id="history"></div>
-
-  <input type="text" class="display" id="display" disabled>
-  <div class="convert" id="convert"></div>
-
-  <div class="buttons">
-    <div class="button" onclick="playSound(7); appendToDisplay('7')">7 <span>Tujuh</span></div>
-    <div class="button" onclick="playSound(8); appendToDisplay('8')">8 <span>Delapan</span></div>
-    <div class="button" onclick="playSound(9); appendToDisplay('9')">9 <span>Sembilan</span></div>
-    <div class="button" onclick="playSound('divide'); appendToDisplay('/')">/ <span>Bagi</span></div>
-
-    <div class="button" onclick="playSound(4); appendToDisplay('4')">4 <span>Empat</span></div>
-    <div class="button" onclick="playSound(5); appendToDisplay('5')">5 <span>Lima</span></div>
-    <div class="button" onclick="playSound(6); appendToDisplay('6')">6 <span>Enam</span></div>
-    <div class="button" onclick="playSound('multiply'); appendToDisplay('*')">*</div>
-
-    <div class="button" onclick="playSound(1); appendToDisplay('1')">1 <span>Satu</span></div>
-    <div class="button" onclick="playSound(2); appendToDisplay('2')">2 <span>Dua</span></div>
-    <div class="button" onclick="playSound(3); appendToDisplay('3')">3 <span>Tiga</span></div>
-    <div class="button" onclick="playSound('minus'); appendToDisplay('-')">- <span>Kurang</span></div>
-
-    <div class="button" onclick="playSound(0); appendToDisplay('0')">0 <span>Enol</span></div>
-    <div class="button" onclick="playSound('dot'); appendToDisplay('.')">. <span>Titik</span></div>
-    <div class="button" onclick="playSound('dollar'); appendToDisplay('$')">$ <span>Dolar</span></div>
-    <div class="button" onclick="playSound('plus'); appendToDisplay('+')">+ <span>Tambah</span></div>
-
-    <div class="button equal-btn" onclick="playSound('equal'); calculate()">= <span>Hasil</span></div>
-    <div class="button convert-btn" onclick="playSound('idr'); convertToUSD()" style="grid-column: span 2;">IDR → USD</div>
-    <div class="button convert-btn" onclick="playSound('usd'); convertToIDR()" style="grid-column: span 2;">USD → IDR</div>
-    <div class="button clear-btn" onclick="playSound('clear'); clearDisplay()">C <span>Bersih</span></div>
+  <h1>Game Ular</h1>
+  
+  <!-- Pengaturan -->
+  <div class="settings">
+    <label>Warna Ular: </label>
+    <input type="color" id="snakeColor" value="#ffffff">
+    &nbsp;&nbsp;
+    <label>Mode: </label>
+    <select id="mode">
+      <option value="150">Normal</option>
+      <option value="200">Easy</option>
+      <option value="100">Hard</option>
+    </select>
+    &nbsp;&nbsp;
+    <button onclick="startGame()">Mulai</button>
   </div>
-</div>
 
-<script>
-const display = document.getElementById('display');
-const historyBox = document.getElementById('history');
-const convertBox = document.getElementById('convert');
-const music = document.getElementById('backgroundMusic');
-let history = [];
-const rateUSD = 15000;
+  <div id="scoreboard">Skor: <span id="score">0</span></div>
+  <canvas id="game" width="400" height="400"></canvas>
 
-function playSound(key) {
-  let audio = document.getElementById('voice' + key);
-  if(audio){
-    audio.currentTime = 0;
-    audio.play();
-  }
-}
+  <div class="controls">
+    <div class="arrow-grid">
+      <div></div>
+      <button class="btn" onclick="setDir(0,-1)">⬆️</button>
+      <div></div>
 
-function appendToDisplay(value) {
-  let current = display.value.replace(/\./g, '');
-  current += value;
-  if(!isNaN(current)) {
-    display.value = Number(current).toLocaleString('id-ID');
-  } else {
-    display.value = current;
-  }
-  convertBox.textContent = '';
-}
+      <button class="btn" onclick="setDir(-1,0)">⬅️</button>
+      <div></div>
+      <button class="btn" onclick="setDir(1,0)">➡️</button>
 
-function clearDisplay() {
-  display.value = '';
-  convertBox.textContent = '';
-}
+      <div></div>
+      <button class="btn" onclick="setDir(0,1)">⬇️</button>
+      <div></div>
+    </div>
+  </div>
 
-function calculate() {
-  try {
-    let expression = display.value.replace(/\./g, '').replace(/\$/g, '');
-    let result = new Function('return ' + expression)();
-    let formattedResult = result.toLocaleString('id-ID');
-    history.push(display.value + " = " + formattedResult);
-    historyBox.innerHTML = history.map(h => "<div>" + h + "</div>").join("");
-    display.value = formattedResult;
-    convertBox.textContent = '';
-  } catch {
-    display.value = 'Error';
-    convertBox.textContent = '';
-  }
-}
+  <script>
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
 
-function toggleHistory() {
-  historyBox.style.display = (historyBox.style.display === "block") ? "none" : "block";
-}
+    const gridSize = 20;
+    const tileCount = canvas.width / gridSize;
 
-function convertToUSD() {
-  let val = parseFloat(display.value.replace(/\./g, '').replace(/\$/g, ''));
-  if (!isNaN(val)) {
-    let usd = val / rateUSD;
-    convertBox.textContent = "= " + usd.toLocaleString('id-ID', {minimumFractionDigits:2, maximumFractionDigits:2}) + " USD";
-  }
-}
+    let snake = [{ x: 5, y: 5 }];
+    let enemy = [{ x: 15, y: 15 }];
+    let food = { x: 10, y: 10 };
+    let dx = 1, dy = 0;
+    let score = 0;
 
-function convertToIDR() {
-  let val = parseFloat(display.value.replace(/\./g, '').replace(/\$/g, ''));
-  if (!isNaN(val)) {
-    let idr = val * rateUSD;
-    display.value = idr.toLocaleString('id-ID');
-    convertBox.textContent = "= " + idr.toLocaleString('id-ID') + " IDR";
-  }
-}
+    let edx = 0, edy = 1;
+    let snakeHeadColor = "white";
+    let snakeBodyColor = "#f2d3aa";
+    let gameSpeed = 150;
+    let gameInterval;
 
-function toggleMusic() {
-  if (music.paused) {
-    music.play().then(() => {
-      console.log("✅ Musik mulai diputar");
-    }).catch(err => {
-      console.error("❌ Error play musik:", err);
-      alert("Musik tidak bisa diputar. Cek nama file, letak file, atau formatnya (harus .mp3).");
+    function gameLoop() {
+      const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+
+      // Musuh gerak random
+      const directions = [
+        { x: 0, y: -1 },
+        { x: 0, y: 1 },
+        { x: -1, y: 0 },
+        { x: 1, y: 0 }
+      ];
+      const randDir = directions[Math.floor(Math.random() * directions.length)];
+      edx = randDir.x;
+      edy = randDir.y;
+
+      let ex = enemy[0].x + edx;
+      let ey = enemy[0].y + edy;
+
+      if (ex < 0 || ex >= tileCount || ey < 0 || ey >= tileCount) {
+        ex = enemy[0].x;
+        ey = enemy[0].y;
+      }
+
+      let ehead = { x: ex, y: ey };
+
+      // Game Over
+      if (
+        head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount ||
+        snake.some(seg => seg.x === head.x && seg.y === head.y) ||
+        enemy.some(seg => seg.x === head.x && seg.y === head.y)
+      ) {
+        alert("Game Over! Skor: " + score);
+        clearInterval(gameInterval);
+        return;
+      }
+
+      snake.unshift(head);
+      if (head.x === food.x && head.y === food.y) {
+        score++;
+        document.getElementById("score").innerText = score;
+        placeFood();
+      } else {
+        snake.pop();
+      }
+
+      enemy.unshift(ehead);
+      const maxEnemyLength = 5 + Math.floor(score / 3);
+      if (enemy.length > maxEnemyLength) enemy.pop();
+
+      drawGame();
+    }
+
+    function drawGame() {
+      ctx.fillStyle = "#467a33";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Kepala ular
+      ctx.fillStyle = snakeHeadColor;
+      ctx.beginPath();
+      ctx.arc(
+        snake[0].x * gridSize + gridSize / 2,
+        snake[0].y * gridSize + gridSize / 2,
+        gridSize / 2 - 2,
+        0, Math.PI * 2
+      );
+      ctx.fill();
+
+      // Badan ular
+      ctx.fillStyle = snakeBodyColor;
+      for (let i = 1; i < snake.length; i++) {
+        const p = snake[i];
+        ctx.fillRect(p.x * gridSize, p.y * gridSize, gridSize - 2, gridSize - 2);
+      }
+
+      // Musuh
+      for (let i = 0; i < enemy.length; i++) {
+        ctx.fillStyle = "orange";
+        if (i === 0) {
+          ctx.beginPath();
+          ctx.arc(
+            enemy[i].x * gridSize + gridSize / 2,
+            enemy[i].y * gridSize + gridSize / 2,
+            gridSize / 2 - 2,
+            0, Math.PI * 2
+          );
+          ctx.fill();
+        } else {
+          ctx.fillRect(enemy[i].x * gridSize, enemy[i].y * gridSize, gridSize - 2, gridSize - 2);
+        }
+      }
+
+      // Makanan
+      ctx.fillStyle = "red";
+      ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 2, gridSize - 2);
+    }
+
+    function placeFood() {
+      food = {
+        x: Math.floor(Math.random() * tileCount),
+        y: Math.floor(Math.random() * tileCount)
+      };
+    }
+
+    function setDir(x, y) {
+      if (x !== -dx && y !== -dy) {
+        dx = x;
+        dy = y;
+      }
+    }
+
+    function startGame() {
+      snakeHeadColor = document.getElementById("snakeColor").value;
+      gameSpeed = parseInt(document.getElementById("mode").value);
+      snake = [{ x: 5, y: 5 }];
+      enemy = [{ x: 15, y: 15 }];
+      dx = 1; dy = 0;
+      score = 0;
+      document.getElementById("score").innerText = score;
+      clearInterval(gameInterval);
+      gameInterval = setInterval(gameLoop, gameSpeed);
+    }
+
+    document.addEventListener("keydown", e => {
+      switch (e.key) {
+        case "ArrowUp": setDir(0, -1); break;
+        case "ArrowDown": setDir(0, 1); break;
+        case "ArrowLeft": setDir(-1, 0); break;
+        case "ArrowRight": setDir(1, 0); break;
+      }
     });
-  } else {
-    music.pause();
-    console.log("⏸ Musik dijeda");
-  }
-}
-</script>
+  </script>
 </body>
 </html>
